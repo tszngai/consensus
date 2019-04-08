@@ -33,13 +33,12 @@ class CountObj(SyncObj):
     def getCounter(self):
         return self.__counter
 
-ip = '192.168.1.75'
+ip = '192.168.1.' + sys.argv[1]
 port = '8000'
 
-ip_other = '192.168.1.78'
 port_other = '8000'
 
 local = ip + ':' + port
-other = [ip_other + ':' + port_other]
+other = ['192.168.1.' + p + ':' + port_other for p in sys.argv[2:]]
 
 myObj = CountObj(local, other)
