@@ -2,12 +2,12 @@ import sys
 import time
 from functools import partial
 sys.path.append("../")
-from pysyncobj import SyncObj, replicated
+from pysyncobj import SyncObj, replicated, config
 
 class CountObj(SyncObj):
 
     def __init__(self, selfNodeAddr, otherNodeAddrs):
-        super(CountObj, self).__init__(selfNodeAddr, otherNodeAddrs)
+        super(CountObj, self).__init__(selfNodeAddr, otherNodeAddrs, conf=config.SyncObjConf(dynamicMembershipChange=True))
         self.__counter = 0
 
     @replicated
