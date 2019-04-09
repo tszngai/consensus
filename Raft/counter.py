@@ -33,6 +33,31 @@ class CountObj(SyncObj):
     def getCounter(self):
         return self.__counter
 
+    def status(self):
+        for k, v in self.getStatus().items():
+            print('%s: %s' % (str(k), str(v)))
+
+    def leader(self):
+        print(self.getStatus()['leader'])
+
+    def state(self):
+        print(self.getStatus()['state'])
+
+    def partnerCount(self):
+        print(self.getStatus()['partner_nodes_count'])
+
+    def readonlyCount(self):
+        print(self.getStatus()['readonly_nodes_count'])
+
+    def unknownCount(self):
+        print(self.getStatus()['unknown_connections_count'])
+
+    def logLen(self):
+        print(self.getStatus()['log_len'])
+
+    def uptime(self):
+        print(self.getStatus()['uptime'])
+
 local = '192.168.1.' + sys.argv[1]
 
 other = ['192.168.1.' + p for p in sys.argv[2:]]
