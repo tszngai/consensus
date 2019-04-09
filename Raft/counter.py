@@ -11,34 +11,30 @@ class CountObj(SyncObj):
         self.__counter = 0
 
     @replicated
-    def incCounter(self):
+    def inc(self):
         self.__counter += 1
         return self.__counter
 
     @replicated
-    def addValue(self, value):
+    def add(self, value):
         self.__counter += value
         return self.__counter
     
     @replicated
-    def decCounter(self):
+    def dec(self):
         self.__counter -= 1
         return self.__counter
     
     @replicated
-    def subValue(self, value):
+    def sub(self, value):
         self.__counter -= value
         return self.__counter
 
     def getCounter(self):
         return self.__counter
 
-ip = '192.168.1.' + sys.argv[1]
-port = '8000'
+local = '192.168.1.' + sys.argv[1]
 
-port_other = '8000'
+other = ['192.168.1.' + p for p in sys.argv[2:]]
 
-local = ip + ':' + port
-other = ['192.168.1.' + p + ':' + port_other for p in sys.argv[2:]]
-
-myObj = CountObj(local, other)
+o = CountObj(local, other)
