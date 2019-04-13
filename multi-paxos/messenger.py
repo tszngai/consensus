@@ -34,6 +34,7 @@ class Messenger(protocol.DatagramProtocol):
             if message_type == 'propose':
 
                 self.replicated_val.propose_update( data )
+            #TODO write new message type response here
 
             else:
                 from_uid = self.addrs[from_addr]

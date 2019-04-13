@@ -14,7 +14,7 @@ from composable_paxos import ProposalID, Prepare, Promise
         
 class DedicatedMasterStrategyMixin (object):
 
-    lease_window   = 10.0  # seconds
+    lease_window   = 5.0 #10.0  # seconds
     lease_start    = 0.0
     lease_expiry   = None
     master_uid     = None  # While None, no peer holds the master lease
