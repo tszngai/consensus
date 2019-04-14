@@ -188,4 +188,5 @@ class BaseReplicatedValue (object):
         
         if isinstance(m, Resolution):
             self.advance_instance( self.instance_number + 1, proposal_value )
-    
+
+
