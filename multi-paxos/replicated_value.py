@@ -190,3 +190,10 @@ class BaseReplicatedValue (object):
             self.advance_instance( self.instance_number + 1, proposal_value )
 
 
+
+    def received_resolutionRequest(self, from_uid):
+        resolution = 'No Resolution'
+        if self.paxos.final_value != None :
+            resolution = self.paxos.final_value
+        self.messenger.send_resolution('Z',resolution)
+

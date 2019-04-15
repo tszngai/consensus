@@ -69,7 +69,7 @@ class ClientProtocol(protocol.DatagramProtocol):
                 self.executeCmd()
 
             if message_type == 'current_value':
-                self.current_value = kwargs['current_value']
+                self.current_value = str(kwargs['current_value'])
                 print('Current resolution is ', self.current_value)
                 reactor.stop()
 

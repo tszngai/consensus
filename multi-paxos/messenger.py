@@ -99,3 +99,8 @@ class Messenger(protocol.DatagramProtocol):
                                          proposal_id     = proposal_id,
                                          proposal_value  = proposal_value)
 
+    def send_masterid(self, peer_uid, master_uid):
+        self._send(peer_uid, 'master_uid', master_id = master_uid)
+
+    def send_resolution(self, peer_uid, resolution):
+        self._send(peer_uid, 'current_value', current_value = resolution)
