@@ -11,8 +11,9 @@ from composable_paxos import ProposalID
 
 class Messenger(protocol.DatagramProtocol):
 
-    def __init__(self, uid, peer_addresses, replicated_val):
+    def __init__(self, uid, peer_addresses, client_addresses,replicated_val):
         self.addrs          = dict(peer_addresses)
+        self.clients        = dict(client_addresses)
         self.replicated_val = replicated_val
 
         # provide two-way mapping between endpoints and server names
@@ -33,11 +34,13 @@ class Messenger(protocol.DatagramProtocol):
 
             if message_type == 'propose':
 
-                self.replicated_val.propose_update( data )
-            #TODO write new message type response here
+                self.replicated_val.propose_update(data )
 
             else:
-                from_uid = self.addrs[from_addr]
+                try:
+                    from_uid = self.addrs[from_addr]
+                except Exception:
+                    from_uid = 'Client'
 
                 print 'rcv', from_uid, ':', packet
 
@@ -65,6 +68,11 @@ class Messenger(protocol.DatagramProtocol):
         msg = '{0} {1}'.format(message_type, json.dumps(kwargs))
         print 'snd', to_uid, ':', msg
         self.transport.write(msg, self.addrs[to_uid])
+
+    def _send2c(self, to_uid, message_type, **kwargs):
+        msg = '{0} {1}'.format(message_type, json.dumps(kwargs))
+        print 'snd', to_uid, ':', msg
+        self.transport.write(msg, self.clients[to_uid])
 
 
     def send_sync_request(self, peer_uid, instance_number):
@@ -100,7 +108,7 @@ class Messenger(protocol.DatagramProtocol):
                                          proposal_value  = proposal_value)
 
     def send_masterid(self, peer_uid, master_uid):
-        self._send(peer_uid, 'master_uid', master_id = master_uid)
+        self._send2c(peer_uid, 'master_uid', master_id = master_uid)
 
     def send_resolution(self, peer_uid, resolution):
-        self._send(peer_uid, 'current_value', current_value = resolution)
+        self._send2c(peer_uid, 'current_value', current_value = resolution)

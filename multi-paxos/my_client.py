@@ -24,7 +24,7 @@ args = p.parse_args()
 
 class ClientProtocol(protocol.DatagramProtocol):
 
-    def __init__(self, cmd,new_value, peer_addresses):
+    def __init__(self, cmd,new_value, peer_addresses,client_addresses):
         self.target_addr      = None
         self.new_value = new_value
         self.addrs          = dict(peer_addresses)
@@ -33,20 +33,18 @@ class ClientProtocol(protocol.DatagramProtocol):
         self.cmd = cmd
         self.uid = 'Z'
         self.peers = peer_addresses
+        self.clients = client_addresses
 
         # provide two-way mapping between endpoints and server names
         for k,v in list(self.addrs.items()):
             self.addrs[v] = k
 
-        reactor.listenUDP(peer_addresses[self.uid][1], self)
+        reactor.listenUDP(self.clients[self.uid][1], self)
 
     def startProtocol(self):
         self.callers = defaultdict(list)
         timer = 0
         for (name, addr) in self.peers.items():
-            if name == 'Z':
-                break
-            print(name)
             r = reactor.callLater(timer,self.sendMasterRequest,name)
             self.callers[name].append(r)
             timer = timer + 5
@@ -59,10 +57,12 @@ class ClientProtocol(protocol.DatagramProtocol):
 
             message_type, data = packet.split(' ', 1)
             kwargs = json.loads(data)
-            print(kwargs)
             if message_type == 'master_uid':
                 if self.masterUid == None:
                     self.masterUid = str(kwargs['master_id'])
+                    for caller in self.callers.values():
+                        if caller[0].active():
+                            caller[0].cancel()
                 else:
                     print('Expired Response.')
                 print('Current master is ',self.masterUid)
@@ -97,8 +97,10 @@ class ClientProtocol(protocol.DatagramProtocol):
                     print("Wrong Command")
         else:
             print('Master ID is missing.')
+
     def sendMasterRequest(self,to_uid):
         self._send(to_uid,'masterRequest')
+
     def _send(self, to_uid, message_type, **kwargs):
         msg = '{0} {1}'.format(message_type, json.dumps(kwargs))
         print 'snd', to_uid, ':', msg
@@ -112,7 +114,7 @@ class ClientProtocol(protocol.DatagramProtocol):
     
 def main():
     #reactor.listenUDP(0,ClientProtocol(sys.argv[1], sys.argv[2]))
-    c = ClientProtocol(args.cmd, args.v, config.peers)
+    c = ClientProtocol(args.cmd, args.v,config.peers, config.clients)
     
 reactor.callWhenRunning(main)
 reactor.run()

@@ -4,8 +4,9 @@ peers = dict( A=('127.0.0.1',1234),
               B=('127.0.0.1',1235),
               C=('127.0.0.1',1236),
               D=('127.0.0.1',1237),
-              E=('127.0.0.1',1238),
-              Z=('127.0.0.1',1240),)
+              E=('127.0.0.1',1238))
+
+clients = dict(Z=('127.0.0.1',1240))
 
 # State files for crash recovery. Windows users will need to modify
 # these.

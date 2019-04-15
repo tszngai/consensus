@@ -14,7 +14,7 @@ from composable_paxos import ProposalID, Prepare, Promise
         
 class DedicatedMasterStrategyMixin (object):
 
-    lease_window   = 5.0 #10.0  # seconds
+    lease_window   = 10.0  # seconds
     lease_start    = 0.0
     lease_expiry   = None
     master_uid     = None  # While None, no peer holds the master lease
@@ -150,7 +150,7 @@ class DedicatedMasterStrategyMixin (object):
 
         super(DedicatedMasterStrategyMixin,self).receive_accept(from_uid, instance_number, proposal_id, proposal_value)
 
-    def received_masterRequest(self, from_uid):
+    def receive_masterRequest(self, from_uid):
         masterid = 'Not selected'
         if self.master_uid != None:
             masterid = self.master_uid
