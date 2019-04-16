@@ -85,9 +85,11 @@ class ClientProtocol(protocol.DatagramProtocol):
         if self.masterUid != None:
             if self.cmd == 'PP':
                 print("The client is going to propose a value")
-                self.target_addr = self.addrs[self.masterUid]
-                print 'Propose:', self.masterUid, ':', self.new_value
-                self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
+                if self.masterUid != 'Not Selected':
+                    self.target_addr = self.addrs[self.masterUid]
+                    print 'Propose:', self.masterUid, ':', self.new_value
+                    self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
+
                 reactor.stop()
             else:
                 if self.cmd == 'LU':
