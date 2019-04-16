@@ -95,7 +95,7 @@ class ClientProtocol(protocol.DatagramProtocol):
                     print("THe client is going to look up the resolution")
 
                 else:
-                    if self.cmd == 'PT'
+                    if self.cmd == 'PT':
                         r = reactor.callLater(600, reactor.stop)
                         while self.stopflag == False:
                             self.target_addr = self.addrs[self.masterUid]
