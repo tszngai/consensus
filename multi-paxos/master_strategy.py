@@ -151,7 +151,11 @@ class DedicatedMasterStrategyMixin (object):
         super(DedicatedMasterStrategyMixin,self).receive_accept(from_uid, instance_number, proposal_id, proposal_value)
 
     def receive_masterRequest(self, from_uid):
-        masterid = 'Not selected'
-        if self.master_uid != None:
-            masterid = self.master_uid
-        self.messenger.send_masterid('Z',masterid)
+        if from_uid in self.messenger.clients.keys():
+            masterid = 'Not selected'
+            if self.master_uid != None:
+                masterid = self.master_uid
+            self.messenger.send_masterid(from_uid,masterid)
+        else:
+            print " Abnormal Master ID Request Received!"
+

@@ -6,6 +6,9 @@ peers = dict( A=('192.168.1.74',1234),
               D=('192.168.1.66',1237),
               E=('192.168.1.79',1238))
 
+#S=('192.168.1.66',1236))
+
+
 clients = dict(Z=('192.168.1.74',1240))
 
 # State files for crash recovery. Windows users will need to modify

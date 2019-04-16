@@ -16,13 +16,13 @@ from twisted.internet import reactor, defer, protocol
 import config
 
 p = argparse.ArgumentParser(description='Multi-Paxos replicated value server')
-p.add_argument('cmd', default='PP',choices=['PP', 'LU','PT'], help='PP = Propose, LU = Lookup, PT = PressureTest')
+p.add_argument('cmd', default='PP',choices=['PP', 'LU'], help='PP = Propose, LU = Lookup')
 p.add_argument('--v', default=0,help='Enter New Value')
 
 args = p.parse_args()
 
 
-class ClientProtocol(protocol.DatagramProtocol):
+class EvasEnemyProtocol(protocol.DatagramProtocol):
 
     def __init__(self, cmd,new_value, peer_addresses,client_addresses):
         self.target_addr      = None
@@ -34,13 +34,12 @@ class ClientProtocol(protocol.DatagramProtocol):
         self.uid = 'Z'
         self.peers = peer_addresses
         self.clients = client_addresses
-        self.stopflag = False
 
         # provide two-way mapping between endpoints and server names
         for k,v in list(self.addrs.items()):
             self.addrs[v] = k
 
-        reactor.listenUDP(self.clients[self.uid][1], self)
+        reactor.listenUDP(self.clients[self.uid][1]+20, self)
 
     def startProtocol(self):
         self.callers = defaultdict(list)
@@ -95,24 +94,12 @@ class ClientProtocol(protocol.DatagramProtocol):
                     print("THe client is going to look up the resolution")
 
                 else:
-                    if self.cmd == 'PT'
-                        r = reactor.callLater(600, reactor.stop)
-                        while self.stopflag == False:
-                            self.target_addr = self.addrs[self.masterUid]
-                            self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
-                            self.new_value = self.new_value + 1
-
-                        reactor.stop()
-
-                    else:
-                        print("Wrong Command")
+                    print("Wrong Command")
         else:
             print('Master ID is missing.')
 
     def sendMasterRequest(self,to_uid):
         self._send(to_uid,'masterRequest')
-    def stopprogram(self):
-        self.stopflag = True
 
     def _send(self, to_uid, message_type, **kwargs):
         msg = '{0} {1}'.format(message_type, json.dumps(kwargs))
@@ -127,7 +114,7 @@ class ClientProtocol(protocol.DatagramProtocol):
     
 def main():
     #reactor.listenUDP(0,ClientProtocol(sys.argv[1], sys.argv[2]))
-    c = ClientProtocol(args.cmd, args.v,config.peers, config.clients)
+    c = EvasEnemyProtocol(args.cmd, args.v,config.peers, config.clients)
     
 reactor.callWhenRunning(main)
 reactor.run()

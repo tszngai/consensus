@@ -19,6 +19,8 @@ class Messenger(protocol.DatagramProtocol):
         # provide two-way mapping between endpoints and server names
         for k,v in list(self.addrs.items()):
             self.addrs[v] = k
+        for k,v in list(self.clients.items()):
+            self.clients[v] = k
 
         reactor.listenUDP( peer_addresses[uid][1], self )
 
@@ -40,7 +42,10 @@ class Messenger(protocol.DatagramProtocol):
                 try:
                     from_uid = self.addrs[from_addr]
                 except Exception:
-                    from_uid = 'Client'
+                    try:
+                        from_uid = self.clients[from_addr]
+                    except Exception:
+                        from_uid = "UNK"
 
                 print 'rcv', from_uid, ':', packet
 
