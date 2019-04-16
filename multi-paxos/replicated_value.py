@@ -29,6 +29,7 @@ class BaseReplicatedValue (object):
         self.peers       = peers            # list of peer network uids
         self.quorum_size = len(peers)/2 + 1
         self.state_file  = state_file
+        self.resolution = None
 
         self.load_state()
 
@@ -108,6 +109,7 @@ class BaseReplicatedValue (object):
         self.save_state(new_instance_number, new_current_value, None, None, None)
         
         self.paxos = PaxosInstance(self.network_uid, self.quorum_size, None, None, None)
+        self.resolution = new_current_value
 
         print 'UPDATED: ', new_instance_number, new_current_value
 
@@ -188,4 +190,15 @@ class BaseReplicatedValue (object):
         
         if isinstance(m, Resolution):
             self.advance_instance( self.instance_number + 1, proposal_value )
-    
+
+
+
+    def receive_resolutionRequest(self, from_uid):
+        resolution = 'No Resolution'
+        if self.paxos.final_value != None:
+            resolution = self.paxos.final_value
+        else:
+            if self.resolution != None :
+                resolution = self.resolution
+        self.messenger.send_resolution('Z',resolution)
+
