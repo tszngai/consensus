@@ -98,11 +98,13 @@ class ClientProtocol(protocol.DatagramProtocol):
 
                 else:
                     if self.cmd == 'PT':
-                        r = reactor.callLater(600, reactor.stop)
+                        r = reactor.callLater(101, self.stopprogram)
+                        timer = 0.5
                         while self.stopflag == False:
-                            self.target_addr = self.addrs[self.masterUid]
-                            self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
                             self.new_value = self.new_value + 1
+                            reactor.callLater(timer, self.sendPropose, self.new_value)
+                            timer = timer + 0.005
+
 
                         reactor.stop()
 
@@ -113,6 +115,8 @@ class ClientProtocol(protocol.DatagramProtocol):
 
     def sendMasterRequest(self,to_uid):
         self._send(to_uid,'masterRequest')
+    def sendPropose(self,value):
+        self.transport.write('propose {0}'.format(value), self.addrs[self.masterUid])
     def stopprogram(self):
         self.stopflag = True
 
