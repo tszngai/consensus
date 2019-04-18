@@ -12,11 +12,12 @@ import json
 from collections import defaultdict
 
 from twisted.internet import reactor, defer, protocol
+from time import sleep
 
 import config
 
 p = argparse.ArgumentParser(description='Multi-Paxos replicated value server')
-p.add_argument('cmd', default='PP',choices=['PP', 'LU'], help='PP = Propose, LU = Lookup')
+p.add_argument('cmd', default='PP',choices=['PP', 'LU','PT'], help='PP = Propose, LU = Lookup, PT = PressureTest')
 p.add_argument('--v', default=0,help='Enter New Value')
 
 args = p.parse_args()
@@ -34,6 +35,7 @@ class ClientProtocol(protocol.DatagramProtocol):
         self.uid = 'Z'
         self.peers = peer_addresses
         self.clients = client_addresses
+        self.stopflag = False
 
         # provide two-way mapping between endpoints and server names
         for k,v in list(self.addrs.items()):
@@ -63,10 +65,8 @@ class ClientProtocol(protocol.DatagramProtocol):
                     for caller in self.callers.values():
                         if caller[0].active():
                             caller[0].cancel()
-                else:
-                    print('Expired Response.')
-                print('Current master is ',self.masterUid)
-                self.executeCmd()
+		    print('Current master is ',self.masterUid)
+                    self.executeCmd()
 
             if message_type == 'current_value':
                 self.current_value = str(kwargs['current_value'])
@@ -84,9 +84,11 @@ class ClientProtocol(protocol.DatagramProtocol):
         if self.masterUid != None:
             if self.cmd == 'PP':
                 print("The client is going to propose a value")
-                self.target_addr = self.addrs[self.masterUid]
-                print 'Propose:', self.masterUid, ':', self.new_value
-                self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
+                if self.masterUid in self.peers.keys():
+                    self.target_addr = self.addrs[self.masterUid]
+                    print 'Propose:', self.masterUid, ':', self.new_value
+                    self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
+
                 reactor.stop()
             else:
                 if self.cmd == 'LU':
@@ -94,12 +96,27 @@ class ClientProtocol(protocol.DatagramProtocol):
                     print("THe client is going to look up the resolution")
 
                 else:
-                    print("Wrong Command")
+                    if self.cmd == 'PT':
+                        r = reactor.callLater(65, self.stopprogram)
+                        while self.stopflag == False:
+                            self.new_value = self.new_value + 1
+			    self.sendPropose(self.new_value)
+			    #self._send(self.masterUid,'masterRequest')
+			    sleep(0.001) 	
+
+                    else:
+                        print("Wrong Command")
         else:
             print('Master ID is missing.')
 
     def sendMasterRequest(self,to_uid):
         self._send(to_uid,'masterRequest')
+    def sendPropose(self,value):
+	print 'Propose:', self.masterUid, ':', self.new_value
+        self.transport.write('propose {0}'.format(value), self.addrs[self.masterUid])
+    def stopprogram(self):
+        print(self.new_value)
+	reactor.stop()
 
     def _send(self, to_uid, message_type, **kwargs):
         msg = '{0} {1}'.format(message_type, json.dumps(kwargs))

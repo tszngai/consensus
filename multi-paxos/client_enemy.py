@@ -22,7 +22,7 @@ p.add_argument('--v', default=0,help='Enter New Value')
 args = p.parse_args()
 
 
-class EnemyProtocol(protocol.DatagramProtocol):
+class EvasEnemyProtocol(protocol.DatagramProtocol):
 
     def __init__(self, cmd,new_value, peer_addresses,client_addresses):
         self.target_addr      = None
@@ -114,7 +114,7 @@ class EnemyProtocol(protocol.DatagramProtocol):
     
 def main():
     #reactor.listenUDP(0,ClientProtocol(sys.argv[1], sys.argv[2]))
-    c = EnemyProtocol(args.cmd, args.v,config.peers, config.clients)
+    c = EvasEnemyProtocol(args.cmd, args.v,config.peers, config.clients)
     
 reactor.callWhenRunning(main)
 reactor.run()
