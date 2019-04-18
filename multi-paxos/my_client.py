@@ -12,6 +12,7 @@ import json
 from collections import defaultdict
 
 from twisted.internet import reactor, defer, protocol
+from time import sleep
 
 import config
 
@@ -64,10 +65,8 @@ class ClientProtocol(protocol.DatagramProtocol):
                     for caller in self.callers.values():
                         if caller[0].active():
                             caller[0].cancel()
-                else:
-                    print('Expired Response.')
-                print('Current master is ',self.masterUid)
-                self.executeCmd()
+		    print('Current master is ',self.masterUid)
+                    self.executeCmd()
 
             if message_type == 'current_value':
                 self.current_value = str(kwargs['current_value'])
@@ -98,13 +97,12 @@ class ClientProtocol(protocol.DatagramProtocol):
 
                 else:
                     if self.cmd == 'PT':
-                        r = reactor.callLater(600, reactor.stop)
+                        r = reactor.callLater(65, self.stopprogram)
                         while self.stopflag == False:
-                            self.target_addr = self.addrs[self.masterUid]
-                            self.transport.write('propose {0}'.format(self.new_value), self.target_addr)
                             self.new_value = self.new_value + 1
-
-                        reactor.stop()
+			    self.sendPropose(self.new_value)
+			    #self._send(self.masterUid,'masterRequest')
+			    sleep(0.001) 	
 
                     else:
                         print("Wrong Command")
@@ -113,8 +111,12 @@ class ClientProtocol(protocol.DatagramProtocol):
 
     def sendMasterRequest(self,to_uid):
         self._send(to_uid,'masterRequest')
+    def sendPropose(self,value):
+	print 'Propose:', self.masterUid, ':', self.new_value
+        self.transport.write('propose {0}'.format(value), self.addrs[self.masterUid])
     def stopprogram(self):
-        self.stopflag = True
+        print(self.new_value)
+	reactor.stop()
 
     def _send(self, to_uid, message_type, **kwargs):
         msg = '{0} {1}'.format(message_type, json.dumps(kwargs))
