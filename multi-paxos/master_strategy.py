@@ -14,7 +14,7 @@ from composable_paxos import ProposalID, Prepare, Promise
         
 class DedicatedMasterStrategyMixin (object):
 
-    lease_window   = 10.0  # seconds
+    lease_window   = 100.0  # seconds
     lease_start    = 0.0
     lease_expiry   = None
     master_uid     = None  # While None, no peer holds the master lease
@@ -64,6 +64,7 @@ class DedicatedMasterStrategyMixin (object):
         if application_level:
             if self.master_uid == self.network_uid:
                 super(DedicatedMasterStrategyMixin,self).propose_update( json.dumps( [None,new_value] ) )
+                self.processcounter += 1
             else:
                 print 'IGNORING CLIENT REQUEST. Current master is: ', self.master_uid
         else:

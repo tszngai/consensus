@@ -30,6 +30,8 @@ class BaseReplicatedValue (object):
         self.quorum_size = len(peers)/2 + 1
         self.state_file  = state_file
         self.resolution = None
+        self.processcounter = None
+        self.resolutioncounter = None
 
         self.load_state()
 
@@ -54,6 +56,9 @@ class BaseReplicatedValue (object):
         self.promised_id     = promised_id
         self.accepted_id     = accepted_id
         self.accepted_value  = accepted_value
+        processed_number = self.processcounter
+        resultioncounter = self.resolutioncounter
+
 
         tmp = self.state_file + '.tmp'
         
@@ -62,7 +67,9 @@ class BaseReplicatedValue (object):
                                       promised_id     = promised_id,
                                       accepted_id     = accepted_id,
                                       accepted_value  = accepted_value,
-                                      current_value   = current_value) ) )
+                                      current_value   = current_value,
+                                      processed_number = processed_number,
+                                      resultioncounter = resultioncounter) ) )
             f.flush()
             os.fsync(f.fileno()) # Wait for the data to be written to disk
             
@@ -94,6 +101,8 @@ class BaseReplicatedValue (object):
             self.promised_id     = to_pid(m['promised_id'])
             self.accepted_id     = to_pid(m['accepted_id'])
             self.accepted_value  = m['accepted_value']
+            self.processcounter = 0
+            self.resolutioncounter = 0
 
 
     def propose_update(self, new_value):
@@ -110,8 +119,8 @@ class BaseReplicatedValue (object):
         
         self.paxos = PaxosInstance(self.network_uid, self.quorum_size, None, None, None)
         self.resolution = new_current_value
-
         print 'UPDATED: ', new_instance_number, new_current_value
+        self.resolutioncounter += 1
 
 
     def send_prepare(self, proposal_id):
