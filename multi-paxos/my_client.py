@@ -97,12 +97,12 @@ class ClientProtocol(protocol.DatagramProtocol):
 
                 else:
                     if self.cmd == 'PT':
-                        r = reactor.callLater(65, self.stopprogram)
+                        r = reactor.callLater(65, reactor.stop)
                         while self.stopflag == False:
                             self.new_value = self.new_value + 1
 			    self.sendPropose(self.new_value)
 			    #self._send(self.masterUid,'masterRequest')
-			    sleep(0.001) 	
+			    sleep(0.0005)
 
                     else:
                         print("Wrong Command")

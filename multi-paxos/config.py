@@ -7,7 +7,7 @@ peers = dict( A=('127.0.0.1',1234),
               E=('127.0.0.1',1238))
 #S=('192.168.1.66',1236))
 
-clients = dict(Z=('127.0.0.1',1240))
+clients = dict(Z=('127.0.0.1',1241))
 
 # State files for crash recovery. Windows users will need to modify
 # these.
