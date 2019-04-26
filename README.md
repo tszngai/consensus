@@ -1,5 +1,5 @@
 # consensus
-Consensus algorithms in IoT application
+Consensus algorithms in IoT application: A EECE571K Course project
 
 In this work we compare and contrast two consensus protocols, Paxos and Raft, to study how consensus mechanism performs in an IoT setup. Specifically, we build on works from https://github.com/cocagne/multi-paxos-example and https://github.com/bakwc/PySyncObj.
 
